@@ -2,13 +2,17 @@
 
 namespace Rojtjo\SentinelGuard;
 
-use Cartalyst\Sentinel\Persistences\PersistenceRepositoryInterface;
-use Cartalyst\Sentinel\Users\UserRepositoryInterface;
 use PHPUnit\Framework\TestCase;
+use Prophecy\PhpUnit\ProphecyTrait;
 use Prophecy\Prophecy\ObjectProphecy;
+use Cartalyst\Sentinel\Users\UserRepositoryInterface;
+use Cartalyst\Sentinel\Persistences\PersistenceRepositoryInterface;
 
 class SentinelGuardTest extends TestCase
 {
+
+    use ProphecyTrait;
+
     /**
      * @var GuardableSentinel|ObjectProphecy
      */
@@ -19,10 +23,10 @@ class SentinelGuardTest extends TestCase
      */
     private $subject;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->sentinel = $this->prophesize(GuardableSentinel::class);
-        $this->subject = new SentinelGuard(
+        $this->subject  = new SentinelGuard(
             $this->sentinel->reveal()
         );
     }
@@ -86,7 +90,7 @@ class SentinelGuardTest extends TestCase
     public function validate_with_correct_credentials()
     {
         $credentials = $this->fakeCredentials();
-        $userRepo = $this->prophesize(UserRepositoryInterface::class);
+        $userRepo    = $this->prophesize(UserRepositoryInterface::class);
         $this->sentinel->getUserRepository()->willReturn($userRepo->reveal())->shouldBeCalled();
         $user = $this->fakeUser();
         $userRepo->findByCredentials($credentials)->willReturn($user)->shouldBeCalled();
@@ -101,7 +105,7 @@ class SentinelGuardTest extends TestCase
     public function validate_with_incorrect_credentials()
     {
         $credentials = $this->fakeCredentials();
-        $userRepo = $this->prophesize(UserRepositoryInterface::class);
+        $userRepo    = $this->prophesize(UserRepositoryInterface::class);
         $this->sentinel->getUserRepository()->willReturn($userRepo->reveal())->shouldBeCalled();
         $userRepo->findByCredentials($credentials)->willReturn(null)->shouldBeCalled();
 
@@ -258,7 +262,7 @@ class SentinelGuardTest extends TestCase
     private function fakeCredentials()
     {
         return [
-            'email' => 'john.doe@example.com',
+            'email'    => 'john.doe@example.com',
             'password' => '1234',
         ];
     }
